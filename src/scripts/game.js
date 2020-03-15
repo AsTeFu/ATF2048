@@ -29,46 +29,13 @@ createElement = (className, parentElement, tag = 'div') => {
     parentElement.appendChild(element);
     return element;
 };
-createGrid = (parent, size) => {
-    let grid = createElement("grid", parent);
-
-    let cells = [];
-    for (let i = 0; i < size; i++) {
-        cells[i] = [];
-        let row = createElement("row", grid);
-        for (let j = 0; j < size; j++) {
-            cells[i][j] = createElement("cell", row);
-        }
-    }
-
-    return cells;
-};
-getAvailableCell = (tiles, size) => {
-    let availableCell;
-    do {
-        availableCell = {x: randomInt(0, size - 1), y: randomInt(0, size - 1)};
-    } while (tiles.has(availableCell.x * size + availableCell.y));
-    console.log(availableCell);
-    return availableCell;
-};
-
-createStartTiles = (parent, size, amount) => {
-    let pos = [{x: 0, y: 0}, {x: 0, y: 2}]; // remove
-    let index = 0;
-    let tiles = new Map();
-    for (let i = 0; i < amount; i++) {
-        let availableCell = pos[index++]; // getAvailableCell(tiles, size);
-        tiles.set(availableCell.x * size + availableCell.y, new Tile(parent, availableCell));
-    }
-    return tiles;
-};
 
 class Tile {
     constructor(parent, {x, y}) {
         this.parent = parent;
         this.position = {x: x, y: y};
         this.value = Math.random() > 0.9 ? 4 : 2;
-        this.html = createElement("tile", parent);
+        this.html = createElement("tile", this.parent);
         this.merged = null;
 
         this.html.innerText = this.value;
@@ -78,11 +45,13 @@ class Tile {
 class Game {
     constructor(parent, size = 4, startTiles = 2) {
         this.size = size;
+        this.parent = parent;
+        console.log(this.parent);
 
-        this.cells = createGrid(parent, size);
-        this.field = createElement("field", parent);
+        this.cells = this.createGrid();
+        this.field = createElement("field", this.parent);
 
-        this.tiles = createStartTiles(this.field, size, startTiles);
+        this.tiles = this.createStartTiles(startTiles);
 
         this.tiles.forEach(value => {
             value.html.style.width = `${this.cells[0][0].clientWidth}px`;
@@ -91,6 +60,40 @@ class Game {
             this.updateTile(value);
         });
     }
+
+    createGrid () {
+        let grid = createElement("grid", this.parent);
+
+        let cells = [];
+        for (let i = 0; i < this.size; i++) {
+            cells[i] = [];
+            let row = createElement("row", grid);
+            for (let j = 0; j < this.size; j++) {
+                cells[i][j] = createElement("cell", row);
+            }
+        }
+
+        return cells;
+    };
+
+    getAvailableCell (){
+        let availableCell;
+        do {
+            availableCell = {x: randomInt(0, this.size - 1), y: randomInt(0, this.size - 1)};
+        } while (this.tiles.has(availableCell.x * this.size + availableCell.y));
+        return availableCell;
+    };
+
+    createStartTiles (amount) {
+        let pos = [{x: 0, y: 0}, {x: 0, y: 2}]; // remove
+        let index = 0;
+        let tiles = new Map();
+        for (let i = 0; i < amount; i++) {
+            let availableCell = pos[index++]; // getAvailableCell(tiles, size);
+            tiles.set(availableCell.x * this.size + availableCell.y, new Tile(this.field, availableCell));
+        }
+        return tiles;
+    };
 
     updateTile(tile) {
         tile.html.innerText = tile.value;
