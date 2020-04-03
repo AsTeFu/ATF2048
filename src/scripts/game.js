@@ -124,11 +124,18 @@ class Game {
         let line = [];
         let dir = {x: Math.abs(direction.x), y: Math.abs(direction.y)};
 
-        for (let j = 0; j < size; j++) {
+        for (let j = 0; j < this.size; j++) {
             let x = i * dir.x + j * dir.y;
             let y = i * dir.y + j * dir.x;
-            line.push(this.tiles.get(x * this.size + y));
+            let tile = this.tiles.get(x * this.size + y) || {position: {x: x, y: y}, value: 0};
+            console.log(tile);
+            console.log('================');
+            debugger;
+            line.push(tile);
+            debugger;
         }
+
+        console.log(line);
 
         return direction.x === -1 || direction.y === -1 ? line.reverse() : line;
     };
@@ -137,9 +144,17 @@ class Game {
         for (let i = 0; i < this.size; i++) {
             let line = this.getLine(direction, i);
 
-            line.forEach((tile, index) => {
-                if (tile) {
+            console.log(line);
 
+            line.forEach((tile, index) => {
+                if (tile.value > 0) {
+
+                } else {
+                    let nextTile = this.getNextTile(line, index);
+                    if (nextTile.tile.value > 0) {
+                        this.tiles.delete(nextTile.tile.position.x * this.size + nextTile.tile.position.y);
+                        nextTile.tile.position = {x: tile.position.x, y: tile.position.y};
+                    }
                 }
             });
 
@@ -188,7 +203,7 @@ class Game {
 
     getNextTile(line, i) {
         let j = i + 1;
-        while (!line[j] && j < this.size) {
+        while (line[j].value === 0 && j < this.size) {
             j++;
         }
         return {tile: line[j], index: j};

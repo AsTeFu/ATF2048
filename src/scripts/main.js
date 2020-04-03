@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-
     this.size = 4;
 
     const buttons = new Map();
@@ -21,6 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-function randomInt(min, max) {
+randomInt = (min, max) => {
     return Math.floor(min + Math.random() * (max - min + 1));
 }
+
